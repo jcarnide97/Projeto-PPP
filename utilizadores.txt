@@ -1,0 +1,3 @@
+Raul,Vila Novs,21/9/1998,123456789, , ,L, , , , ,L, , , , ,L, , , , ,
+Joao Nunes,Coimbra,22/11/1997,917786185,Coimbra,Moelas,L,Amsterdao, , , ,L,Lisboa,Urban, , ,L,Coimbra,Moelas,Universidade de Coimbra, ,
+Alberto,Coimbra Norte,11/11/1990,916639375,Coimbra,Moelas,L,Lisboa,Urban, , ,L,Porto, , , ,L,Coimbra,Moelas,Universidade de Coimbra, ,

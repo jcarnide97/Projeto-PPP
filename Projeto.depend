@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1555441729 source:c:\users\joão\documents\joão filipe\escola\universidade\2º ano\2º semestre\ppp\projeto\projeto\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"projeto.h"
+
+1555441248 c:\users\joão\documents\joão filipe\escola\universidade\2º ano\2º semestre\ppp\projeto\projeto\projeto.h
+
+1558304207 source:c:\users\joao_\documents\joão filipe\universidade\2º ano\2º semestre\ppp\projeto\projeto\main.c
+	"projeto.h"
+
+1558031066 c:\users\joao_\documents\joão filipe\universidade\2º ano\2º semestre\ppp\projeto\projeto\projeto.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1558543586 source:c:\users\joao_\documents\joão filipe\universidade\2º ano\2º semestre\ppp\projeto\projetoppp\main.c
+	"projeto.h"
+
+1558542848 c:\users\joao_\documents\joão filipe\universidade\2º ano\2º semestre\ppp\projeto\projetoppp\projeto.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
