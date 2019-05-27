@@ -12,6 +12,275 @@ int main() {
     return 0;
 }
 
+
+void utilizador(){
+    int aux,status;
+    Utilizador atual;
+    printf("\t\t[1] Login\n");
+    printf("\t\t[2] Registar Utilizador\n");
+    printf("\t\t[3] Sair\n");
+    do{
+        scanf("%d", &aux);
+    }while (aux!=1 && aux!=2 && aux !=3);
+    if (aux==1) {
+        status=login(&atual);
+        if (status==1) {
+            inicia(&atual);
+            return;
+        }
+    }
+    else if(aux==2){
+        status = registar();
+        if (status==1) {
+            utilizador();
+            return;
+        }
+    }
+}
+
+
+int registar(){
+    Utilizador novo;
+    int aux;
+    printf("Nome: ");
+    scanf(" %[^\n]",novo.nome);
+    aux = consultaNome(novo.nome);
+    if (aux==1) {
+        registar();
+        return 0;
+    }
+    printf("Morada: ");
+    scanf(" %[^\n]",novo.morada);
+    do {
+        printf("Data de nascimento(dd/mm/aaaa): ");
+        scanf("%d/%d/%d",&(novo.dia),&(novo.mes),&(novo.ano));
+    } while(novo.mes < 1 || novo.mes > 12);
+    printf("Telefone: ");
+    scanf("%d",&(novo.telefone));
+    gravaUtilizador(&novo);
+    return 1;
+}
+
+
+void inicia(Utilizador *atual){
+    int aux,totalUtili,local,hot=0,pontosIncluidos,totalPontos,p1, p2, p3;
+    List listaPopCidades;
+    List listaAlfaCidades;
+    Travel via;
+    Travel via1;
+    Travel via2;
+    Viagem viagem;
+    Viagem viagem1;
+    Viagem viagem2;
+    Viagem viagemAlfa;
+    printf("\t\t[1] Ordenar Locais e Pontos de Interesse\n");
+    printf("\t\t[2] Escolher Ponto de Interesse Hot\n");
+    printf("\t\t[3] Escolher Outras Preferencias\n");
+    printf("\t\t[4] Ordenar Por Popularidade\n");
+    printf("\t\t[5] Gerar Viagem\n");
+    printf("\t\t[6] Sair\n");
+    scanf("%d", &aux);
+    if(aux==1){
+        system("@cls");
+        listaAlfaCidades = NULL;
+        viagemAlfa = NULL;
+        listaAlfaCidades = ordemAlfa(listaAlfaCidades);
+        print_lista(listaAlfaCidades);
+        escolhe_cidade_alfa(listaAlfaCidades,viagemAlfa);
+        inicia(atual);
+        return;
+    }
+    if (aux==2) {
+        system("@cls");
+        prefer(atual);
+        inicia(atual);
+        return;
+    }
+    if (aux==3) {
+        system("@cls");
+        if(strcmp(atual->pdi," ")!=0 && strcmp(atual->pdi,"")!=0){
+            preferCidade(atual);
+            inicia(atual);
+            return;
+        }
+        else{
+            printf("ESCOLHA PRIMEIRO UM HOTSPOT\n");
+            inicia(atual);
+            return;
+        }
+    }
+    if (aux==4) {
+        system("@cls");
+        listaPopCidades = NULL;
+        viagem = NULL;
+        listaPopCidades = leficheiro(listaPopCidades);
+        print_lista(listaPopCidades);
+        escolhe_cidade(listaPopCidades,viagem);
+        inicia(atual);
+        return;
+    }
+    if (aux==5) {
+        system("@cls");
+        if (strcmp(atual->cidade," ")==0 || strcmp(atual->city1," ")==0 || strcmp(atual->city2," ")==0) {
+            printf("ESCOLHA UM HOTSPOT, E DUAS OUTRAS CIDADES DE PREFERENCIA\n");
+            inicia(atual);
+            return;
+        }
+        else{
+            printf("--------------------------------A SUA VIAGEM---------------------------------\n");
+            viagem = NULL;
+            viagem1 = NULL;
+            viagem2 = NULL;
+            via = NULL;
+            via1 = NULL;
+            via2 = NULL;
+            viagem1 = choice1(viagem1,atual);
+            viagem2 = choice2(viagem2,atual);
+            via1 = cria_viagem1(atual,viagem1,via1);
+            via2 = cria_viagem2(atual,viagem2,via2);
+            if (strcmp(atual->cidade,atual->city3)!=0) {
+                viagem = choice(viagem,atual);
+                via = cria_viagem(atual,viagem,via);
+                printf("--------------------------------%s---------------------------------\n",atual->cidade);
+                print_via(via);
+            }
+            else{
+                viagem = choice3(viagem,atual);
+                via = cria_viagem3(atual,viagem,via);
+                printf("--------------------------------%s---------------------------------\n",atual->city3);
+                print_via(via);
+            }
+            printf("--------------------------------%s---------------------------------\n",atual->city1);
+            print_via(via1);
+            printf("--------------------------------%s---------------------------------\n",atual->city2);
+            print_via(via2);
+            totalUtili = totalUtilizadores();
+            local = localUtilizador(atual);
+            hot += hotPdi(via,atual->cidade);
+            hot += hotPdi(via1,atual->city1);
+            hot += hotPdi(via2,atual->city2);
+            pontosIncluidos = totalPreferencias(atual);
+            totalPontos = contaPontos();
+            p1 = (local*100)/totalUtili;
+            p2 = (hot*100)/totalUtili;
+            p3 = (pontosIncluidos/totalPontos)*100;
+            printf("Taxas:\n\t\tPercentagem de utilizadores que tem pelo menos 1 local favorito entre os incluidos na viagem: %d\n",p1);
+            printf("\t\tPercentagem de utilizadores cujo PdI hot esta incluido nesta viagem: %d\n",p2);
+            printf("\t\tPercentagem das preferencias de PdI: %d\n",p3);
+            printf("\t\tMedia das Taxas: %d\n\n\n",(p1+p2+p3)/3);
+            inicia(atual);
+            return;
+        }
+    }
+    if (aux==6) {
+        return;
+    }
+}
+
+
+void gravaUtilizador(Utilizador *novo){
+    FILE *fp = fopen("utilizadores.txt", "a");
+    if (fp==NULL) {
+        printf("ERRO AO ABRIR O FICHEIRO DE UTILIZADORES\n");
+        return;
+    }
+    fprintf(fp, "\n%s,", novo->nome);
+    fprintf(fp, "%s,", novo->morada);
+    fprintf(fp, "%d/%d/%d, ",novo->dia,novo->mes,novo->ano);
+    fprintf(fp, "%d, , ,L, , , , ,L, , , , ,L, , , , ,",novo->telefone);
+    fclose(fp);
+}
+
+
+int consultaNome(char nome[]){
+    char * result,*name, linha[MAXLINHA];
+    int aux;
+    FILE *fp = fopen("utilizadores.txt", "r");
+    if (fp==NULL) {
+        printf("ERRO AO ABRIR O FICHEIRO DE UTILIZADORES\n");
+        return 1;
+    }
+    while (!feof(fp)) {
+        result = fgets(linha, MAXLINHA, fp);
+        if (result){
+            name = strtok(result,",");
+            aux = strcmp(nome,name);
+            if(aux==0){
+                printf("O nome ja existe.\n");
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+
+int confirma(Utilizador *confirma){
+    char * result,*nome, linha[MAXLINHA],*morada,*data, *telemovel,*city,*pi,*city1,*city2,*pc11,*pc12,*pc13,*pc21,*pc22,*pc23,*identificador;
+    int aux, auxDia, auxMes, auxAno;
+    FILE *fp = fopen("utilizadores.txt", "r");
+    while (!feof(fp)) {
+        result = fgets(linha, MAXLINHA, fp);
+        if (result) {
+            nome = strtok(result,",");
+            aux = strcmp(nome,(confirma->nome));
+            if(aux==0){
+                morada = strtok(NULL, ",");
+                data = strtok(NULL, ",");
+                telemovel = strtok(NULL, ",");
+                city = strtok(NULL, ",");
+                pi = strtok(NULL, ",");
+                identificador = strtok(NULL,",");
+                city1 = strtok(NULL,",");
+                pc11 = strtok(NULL,",");
+                pc12 = strtok(NULL,",");
+                pc13 = strtok(NULL,",");
+                identificador = strtok(NULL,",");
+                city2 = strtok(NULL,",");
+                pc21 = strtok(NULL,",");
+                pc22 = strtok(NULL,",");
+                pc23 = strtok(NULL,",");
+                sscanf(data,"%d/%d/%d",&auxDia,&auxMes,&auxAno);
+                sscanf(telemovel,"%d",&(confirma->telefone));
+                confirma->dia = auxDia;
+                confirma->mes = auxMes;
+                confirma->ano = auxAno;
+                strcpy(confirma->morada,morada);
+                strcpy(confirma->cidade,city);
+                strcpy(confirma->pdi,pi);
+                strcpy(confirma->city1,city1);
+                strcpy(confirma->city2,city2);
+                strcpy(confirma->pc11,pc11);
+                strcpy(confirma->pc12,pc12);
+                strcpy(confirma->pc13,pc13);
+                strcpy(confirma->pc21,pc21);
+                strcpy(confirma->pc22,pc22);
+                strcpy(confirma->pc23,pc23);
+                printf("Ola %s\n", nome);
+                fclose(fp);
+                return 1;
+            }
+        }
+    }
+    fclose(fp);
+    return 0;
+}
+
+
+int login(Utilizador *check){
+    int aux;
+    printf("Nome: ");
+    scanf(" %[^\n]", check->nome);
+    aux = confirma(check);
+    if(aux==0){
+        printf("O NOME NAO SE ENCONTRA NA BASE DE DADOS\n");
+        utilizador();
+        return 0;
+    }
+    return 1;
+}
+
+
 int verificaCidade(char cidade[],char pdi[] ,char aux, char pasta[]){
     char *result, linha[MAXLINHA], *identificador, *nome, *ponto, auxPonto[] = "PdI",*segundoIden;
     FILE *fp = fopen("locais.txt", "r");
@@ -45,6 +314,7 @@ int verificaCidade(char cidade[],char pdi[] ,char aux, char pasta[]){
     return 0;
 }
 
+
 int checkCity(char cidade[]){
     char *result, linha[MAXLINHA], *identificador, *nome,aux[] = "L";
     FILE *fp = fopen("locais.txt", "r");
@@ -68,6 +338,7 @@ int checkCity(char cidade[]){
     return 0;
 }
 
+
 int verifica(List lista,char city[]){
     List actual;
     actual = lista;
@@ -82,6 +353,7 @@ int verifica(List lista,char city[]){
     }
     return 0;
 }
+
 
 List ordemAlfa(List lista){
     FILE *fp = fopen("locais.txt", "r");
@@ -129,6 +401,8 @@ List ordemAlfa(List lista){
     fclose(fp);
     return lista;
 }
+
+
 List leficheiro(List lista){
     FILE *fp = fopen("locais.txt", "r");
     List novo,atual, ant;
@@ -185,6 +459,7 @@ List leficheiro(List lista){
     fclose(fp);
     return lista;
 }
+
 
 Viagem alfa(Viagem viagem, char cidade[]){
     char *result, linha[MAXLINHA],*city, *identificador,*pdi,*desc,*inicio, *fim, *pop,aux1[]="L", aux2[]="PdI", aux3[]="Descricao", aux4[]="Horario", aux5[]="Popularidade";
@@ -258,6 +533,7 @@ Viagem alfa(Viagem viagem, char cidade[]){
     fclose(fp);
     return viagem;
 }
+
 
 Viagem gera_viagem(Viagem viagem, char cidade[]){
     char *result, linha[MAXLINHA],*city, *identificador,*pdi,*desc,*inicio, *fim, *pop,aux1[]="L", aux2[]="PdI", aux3[]="Descricao", aux4[]="Horario", aux5[]="Popularidade";
@@ -341,6 +617,7 @@ Viagem gera_viagem(Viagem viagem, char cidade[]){
     return viagem;
 }
 
+
 void print_viagem(Viagem lista){
     Viagem act;
     act = lista;
@@ -355,6 +632,7 @@ void print_viagem(Viagem lista){
     printf("----------------------------------\n");
 }
 
+
 void print_lista(List lista){
     List act;
     act = lista;
@@ -364,6 +642,7 @@ void print_lista(List lista){
     }
     printf("%s\n",act->info);
 }
+
 
 void acabaLocais(char pasta1[],char pastinha[]){
     char *result2,linha2[MAXLINHA];
@@ -382,6 +661,7 @@ void acabaLocais(char pasta1[],char pastinha[]){
     fclose(fp2);
     remove(pasta1);
 }
+
 
 void alteraNum(char pastinha[],long int position, int num){
     FILE *fp = fopen(pastinha, "r");
@@ -406,6 +686,7 @@ void alteraNum(char pastinha[],long int position, int num){
     acabaLocais("locaisnovos.txt",pastinha);
 }
 
+
 void aumentaPopCidade(long int pos, int num, char cidade[]){
     FILE *fp = fopen("locais.txt", "r");
     FILE *fp2 = fopen("locaisnovos.txt", "w");
@@ -426,6 +707,7 @@ void aumentaPopCidade(long int pos, int num, char cidade[]){
     fclose(fp);
     acabaLocais("locaisnovos.txt","locais.txt");
 }
+
 
 void retiraPopCidade(Utilizador *atual){
     char *result, linha[MAXLINHA], *city, *identificador, aux[]="L",*popularidade;
@@ -455,6 +737,7 @@ void retiraPopCidade(Utilizador *atual){
         }
     }
 }
+
 
 void retiraPop(Utilizador *atual){
     char *result, linha[MAXLINHA], *city,*interesse,*identificador,*segIden,auxPonto[] = "PdI",*terIden,auxPop[]="Popularidade",auxCidade[]="L", *pop;
@@ -504,6 +787,7 @@ void retiraPop(Utilizador *atual){
     }
     fclose(fp);
 }
+
 
 void guardaPdi(Escolhe * ponto){
     char *result, linha[MAXLINHA], *city,*interesse,*identificador,*segIden,auxPonto[] = "PdI",*terIden,auxPop[]="Popularidade",auxCidade[]="L", *pop, *popCi;
@@ -563,6 +847,7 @@ void guardaPdi(Escolhe * ponto){
     fclose(fp);
 }
 
+
 void apagaFichU(){
     char *result2,linha2[MAXLINHA];
     FILE *fp2 = fopen("utilizadores.txt", "w");
@@ -580,6 +865,7 @@ void apagaFichU(){
     fclose(fp2);
     remove("utilizadoresnovos.txt");
 }
+
 
 void guardaUti(Utilizador * atual, Escolhe * paraGuardar){
     FILE *fp = fopen("utilizadores.txt", "r");
@@ -609,6 +895,7 @@ void guardaUti(Utilizador * atual, Escolhe * paraGuardar){
     fclose(fp2);
     apagaFichU();
 }
+
 
 void prefer(Utilizador *atual){
     int aux;
@@ -657,124 +944,6 @@ void prefer(Utilizador *atual){
     return;
 }
 
-int registar(){
-    Utilizador novo;
-    int aux;
-    printf("Nome: ");
-    scanf(" %[^\n]",novo.nome);
-    aux = consultaNome(novo.nome);
-    if (aux==1) {
-        registar();
-        return 0;
-    }
-    printf("Morada: ");
-    scanf(" %[^\n]",novo.morada);
-    printf("Data de nascimento(dd/mm/aaaa): ");
-    scanf("%d/%d/%d",&(novo.dia),&(novo.mes),&(novo.ano));
-    printf("Telefone: ");
-    scanf("%d",&(novo.telefone));
-    gravaUtilizador(&novo);
-    return 1;
-}
-
-void gravaUtilizador(Utilizador *novo){
-    FILE *fp = fopen("utilizadores.txt", "a");
-    if (fp==NULL) {
-        printf("ERRO AO ABRIR O FICHEIRO DE UTILIZADORES\n");
-        return;
-    }
-    fprintf(fp, "\n%s,", novo->nome);
-    fprintf(fp, "%s,", novo->morada);
-    fprintf(fp, "%d/%d/%d, ",novo->dia,novo->mes,novo->ano);
-    fprintf(fp, "%d, , ,L, , , , ,L, , , , ,L, , , , ,",novo->telefone);
-    fclose(fp);
-}
-
-int consultaNome(char nome[]){
-    char * result,*name, linha[MAXLINHA];
-    int aux;
-    FILE *fp = fopen("utilizadores.txt", "r");
-    if (fp==NULL) {
-        printf("ERRO AO ABRIR O FICHEIRO DE UTILIZADORES\n");
-        return 1;
-    }
-    while (!feof(fp)) {
-        result = fgets(linha, MAXLINHA, fp);
-        if (result){
-            name = strtok(result,",");
-            aux = strcmp(nome,name);
-            if(aux==0){
-                printf("O nome ja existe.\n");
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
-int confirma(Utilizador *confirma){
-    char * result,*nome, linha[MAXLINHA],*morada,*data, *telemovel,*city,*pi,*city1,*city2,*pc11,*pc12,*pc13,*pc21,*pc22,*pc23,*identificador;
-    int aux, auxDia, auxMes, auxAno;
-    FILE *fp = fopen("utilizadores.txt", "r");
-    while (!feof(fp)) {
-        result = fgets(linha, MAXLINHA, fp);
-        if (result) {
-            nome = strtok(result,",");
-            aux = strcmp(nome,(confirma->nome));
-            if(aux==0){
-                morada = strtok(NULL, ",");
-                data = strtok(NULL, ",");
-                telemovel = strtok(NULL, ",");
-                city = strtok(NULL, ",");
-                pi = strtok(NULL, ",");
-                identificador = strtok(NULL,",");
-                city1 = strtok(NULL,",");
-                pc11 = strtok(NULL,",");
-                pc12 = strtok(NULL,",");
-                pc13 = strtok(NULL,",");
-                identificador = strtok(NULL,",");
-                city2 = strtok(NULL,",");
-                pc21 = strtok(NULL,",");
-                pc22 = strtok(NULL,",");
-                pc23 = strtok(NULL,",");
-                sscanf(data,"%d/%d/%d",&auxDia,&auxMes,&auxAno);
-                sscanf(telemovel,"%d",&(confirma->telefone));
-                confirma->dia = auxDia;
-                confirma->mes = auxMes;
-                confirma->ano = auxAno;
-                strcpy(confirma->morada,morada);
-                strcpy(confirma->cidade,city);
-                strcpy(confirma->pdi,pi);
-                strcpy(confirma->city1,city1);
-                strcpy(confirma->city2,city2);
-                strcpy(confirma->pc11,pc11);
-                strcpy(confirma->pc12,pc12);
-                strcpy(confirma->pc13,pc13);
-                strcpy(confirma->pc21,pc21);
-                strcpy(confirma->pc22,pc22);
-                strcpy(confirma->pc23,pc23);
-                printf("Ola %s\n", nome);
-                fclose(fp);
-                return 1;
-            }
-        }
-    }
-    fclose(fp);
-    return 0;
-}
-
-int login(Utilizador *check){
-    int aux;
-    printf("Nome: ");
-    scanf(" %[^\n]", check->nome);
-    aux = confirma(check);
-    if(aux==0){
-        printf("O NOME NAO SE ENCONTRA NA BASE DE DADOS\n");
-        utilizador();
-        return 0;
-    }
-    return 1;
-}
 
 void escolhe_cidade_alfa(List listaPop, Viagem viagem){
     char city[MAXCIDADE];
@@ -793,6 +962,7 @@ void escolhe_cidade_alfa(List listaPop, Viagem viagem){
         return;
     }
 }
+
 
 Travel cria_viagem3(Utilizador *atual,Viagem viagem,Travel via){
     Viagem actual;
@@ -903,6 +1073,7 @@ Travel cria_viagem3(Utilizador *atual,Viagem viagem,Travel via){
     return via;
 }
 
+
 Travel cria_viagem2(Utilizador *atual,Viagem viagem,Travel via){
     Viagem actual;
     Travel act;
@@ -1011,6 +1182,7 @@ Travel cria_viagem2(Utilizador *atual,Viagem viagem,Travel via){
     }
     return via;
 }
+
 
 Travel cria_viagem1(Utilizador *atual,Viagem viagem,Travel via){
     Viagem actual;
@@ -1121,6 +1293,7 @@ Travel cria_viagem1(Utilizador *atual,Viagem viagem,Travel via){
     return via;
 }
 
+
 Travel cria_viagem(Utilizador *atual,Viagem viagem,Travel via){
     Viagem actual;
     Travel act;
@@ -1155,7 +1328,6 @@ Travel cria_viagem(Utilizador *atual,Viagem viagem,Travel via){
             }
         }
     }
-
     else{
         while((i<3)&&(actual!=NULL)){
             novo = (Travel)malloc(sizeof(Travel_no));
@@ -1177,6 +1349,7 @@ Travel cria_viagem(Utilizador *atual,Viagem viagem,Travel via){
     return via;
 }
 
+
 Viagem choice3(Viagem viagem,Utilizador *atual){
     char city[MAXCIDADE];
     strcpy(city,atual->city3);
@@ -1184,6 +1357,7 @@ Viagem choice3(Viagem viagem,Utilizador *atual){
     viagem=gera_viagem(viagem,city);
     return viagem;
 }
+
 
 Viagem choice2(Viagem viagem,Utilizador *atual){
     char city[MAXCIDADE];
@@ -1193,6 +1367,7 @@ Viagem choice2(Viagem viagem,Utilizador *atual){
     return viagem;
 }
 
+
 Viagem choice1(Viagem viagem,Utilizador *atual){
     char city[MAXCIDADE];
     strcpy(city,atual->city1);
@@ -1201,6 +1376,7 @@ Viagem choice1(Viagem viagem,Utilizador *atual){
     return viagem;
 }
 
+
 Viagem choice(Viagem viagem,Utilizador *atual){
     char city[MAXCIDADE];
     strcpy(city,atual->cidade);
@@ -1208,6 +1384,7 @@ Viagem choice(Viagem viagem,Utilizador *atual){
     viagem=gera_viagem(viagem,city);
     return viagem;
 }
+
 
 void escolhe_cidade(List listaPop, Viagem viagem){
     char city[MAXCIDADE];
@@ -1251,6 +1428,7 @@ void guardaPrefeCidade(Utilizador * atual){
     return;
 }
 
+
 void alteraNumero(char pastinha[],long int pos, int num){
     FILE *fp = fopen(pastinha, "r");
     FILE *fp2 = fopen("locaisnovos.txt", "w");
@@ -1271,6 +1449,7 @@ void alteraNumero(char pastinha[],long int pos, int num){
     fclose(fp);
     acabaLocais("locaisnovos.txt",pastinha);
 }
+
 
 void retiraPopularidade(Utilizador *atual){
     FILE *fp = fopen("locais.txt","r");
@@ -1372,6 +1551,7 @@ void retiraPopularidade(Utilizador *atual){
     }
 }
 
+
 void aumentaPopularidade(Utilizador *atual){
     FILE *fp = fopen("locais.txt","r");
     char *result, linha[MAXLINHA],*cidade,*popu,*pdi,*identificador;
@@ -1471,6 +1651,7 @@ void aumentaPopularidade(Utilizador *atual){
 
     }
 }
+
 
 void preferCidade(Utilizador *atual){
     char city[MAXCIDADE], pdi[MAXCIDADE];
@@ -1602,6 +1783,7 @@ void preferCidade(Utilizador *atual){
     }
 }
 
+
 int totalUtilizadores(){
     FILE *fp = fopen("utilizadores.txt","r");
     char *result,linha[MAXLINHA];
@@ -1613,6 +1795,8 @@ int totalUtilizadores(){
     fclose(fp);
     return total;
 }
+
+
 int localUtilizador(Utilizador * atual){
     FILE *fp = fopen("utilizadores.txt","r");
     char *result,linha[MAXLINHA],*ci1,*ci2,*ci3;
@@ -1639,6 +1823,7 @@ int localUtilizador(Utilizador * atual){
     fclose(fp);
     return total;
 }
+
 
 int hotPdi(Travel via,char cidade[]){
     FILE *fp = fopen("utilizadores.txt","r");
@@ -1669,6 +1854,7 @@ int hotPdi(Travel via,char cidade[]){
     return total;
 }
 
+
 int procuraPop(char nome[]){
     FILE *fp = fopen("locais.txt","r");
     int pop=0,i=0;
@@ -1697,6 +1883,7 @@ int procuraPop(char nome[]){
     }
     return pop;
 }
+
 
 int totalPreferencias(Utilizador * atual){
     FILE *fp = fopen("utilizadores.txt","r");
@@ -1748,6 +1935,7 @@ int totalPreferencias(Utilizador * atual){
     return total;
 }
 
+
 int contaPontos(){
     FILE *fp = fopen("locais.txt","r");
     char *result,linha[MAXLINHA],*identificador,*popu;
@@ -1775,6 +1963,7 @@ int contaPontos(){
     return total;
 }
 
+
 void print_via(Travel lista){
     Travel act;
     act = lista;
@@ -1783,137 +1972,4 @@ void print_via(Travel lista){
         act  = act -> next;
     }
     printf("----------------------------------------------------------------\n");
-}
-
-void inicia(Utilizador *atual){
-    int aux,totalUtili,local,hot=0,pontosIncluidos,totalPontos,p1, p2, p3;
-    List listaPopCidades;
-    List listaAlfaCidades;
-    Travel via;
-    Travel via1;
-    Travel via2;
-    Viagem viagem;
-    Viagem viagem1;
-    Viagem viagem2;
-    Viagem viagemAlfa;
-    printf("\t\t[1] Ordenar Locais e Pontos de Interesse\n");
-    printf("\t\t[2] Escolher Ponto de Interesse Hot\n");
-    printf("\t\t[3] Escolher Outras Preferencias\n");
-    printf("\t\t[4] Ordenar Por Popularidade\n");
-    printf("\t\t[5] Gerar Viagem\n");
-    printf("\t\t[6] Sair\n");
-    scanf("%d", &aux);
-    if(aux==1){
-        listaAlfaCidades = NULL;
-        viagemAlfa = NULL;
-        listaAlfaCidades = ordemAlfa(listaAlfaCidades);
-        print_lista(listaAlfaCidades);
-        escolhe_cidade_alfa(listaAlfaCidades,viagemAlfa);
-        inicia(atual);
-        return;
-    }
-    if (aux==2) {
-        prefer(atual);
-        inicia(atual);
-        return;
-    }
-    if (aux==3) {
-        if(strcmp(atual->pdi," ")!=0 && strcmp(atual->pdi,"")!=0){
-            preferCidade(atual);
-            inicia(atual);
-            return;
-        }
-        else{
-            printf("ESCOLHA PRIMEIRO UM HOTSPOT\n");
-            inicia(atual);
-            return;
-        }
-    }
-    if (aux==4) {
-        listaPopCidades = NULL;
-        viagem = NULL;
-        listaPopCidades = leficheiro(listaPopCidades);
-        print_lista(listaPopCidades);
-        escolhe_cidade(listaPopCidades,viagem);
-        inicia(atual);
-        return;
-    }
-    if (aux==5) {
-        if (strcmp(atual->cidade," ")==0 || strcmp(atual->city1," ")==0 || strcmp(atual->city2," ")==0) {
-            printf("ESCOLHA UM HOTSPOT, E DUAS OUTRAS CIDADES DE PREFERENCIA\n");
-            inicia(atual);
-            return;
-        }
-        else{
-            printf("--------------------------------A SUA VIAGEM---------------------------------\n");
-            viagem = NULL;
-            viagem1 = NULL;
-            viagem2 = NULL;
-            via = NULL;
-            via1 = NULL;
-            via2 = NULL;
-            viagem1 = choice1(viagem1,atual);
-            viagem2 = choice2(viagem2,atual);
-            via1 = cria_viagem1(atual,viagem1,via1);
-            via2 = cria_viagem2(atual,viagem2,via2);
-            if (strcmp(atual->cidade,atual->city3)!=0) {
-                viagem = choice(viagem,atual);
-                via = cria_viagem(atual,viagem,via);
-                printf("--------------------------------%s---------------------------------\n",atual->cidade);
-                print_via(via);
-            }
-            else{
-                viagem = choice3(viagem,atual);
-                via = cria_viagem3(atual,viagem,via);
-                printf("--------------------------------%s---------------------------------\n",atual->city3);
-                print_via(via);
-            }
-            printf("--------------------------------%s---------------------------------\n",atual->city1);
-            print_via(via1);
-            printf("--------------------------------%s---------------------------------\n",atual->city2);
-            print_via(via2);
-            totalUtili = totalUtilizadores();
-            local = localUtilizador(atual);
-            hot += hotPdi(via,atual->cidade);
-            hot += hotPdi(via1,atual->city1);
-            hot += hotPdi(via2,atual->city2);
-            pontosIncluidos = totalPreferencias(atual);
-            totalPontos = contaPontos();
-            p1 = (local*100)/totalUtili;
-            p2 = (hot*100)/totalUtili;
-            p3 = (pontosIncluidos/totalPontos)*100;
-            printf("Taxas:\n\t\tPercentagem de utilizadores que tem pelo menos 1 local favorito entre os incluidos na viagem: %d\n\t\tPercentagem de utilizadores cujo PdI hot esta incluido nesta viagem: %d\n\t\tPercentagem das preferencias de PdI: %d\n\t\tMedia das Taxas: %d\n\n\n",p1,p2,p3,(p1+p2+p3)/3);
-            inicia(atual);
-            return;
-        }
-    }
-    if (aux==6) {
-        return;
-    }
-
-}
-
-void utilizador(){
-    int aux,status;
-    Utilizador atual;
-    printf("\t\t[1] Login\n");
-    printf("\t\t[2] Registar Utilizador\n");
-    printf("\t\t[3] Sair\n");
-    do{
-        scanf("%d", &aux);
-    }while (aux!=1 && aux!=2 && aux !=3);
-    if (aux==1) {
-        status=login(&atual);
-        if (status==1) {
-            inicia(&atual);
-            return;
-        }
-    }
-    else if(aux==2){
-        status = registar();
-        if (status==1) {
-            utilizador();
-            return;
-        }
-    }
 }

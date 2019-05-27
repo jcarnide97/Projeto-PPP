@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 typedef char ITEM_TYPE;
 typedef struct lnode* List;
 typedef struct lnode{
@@ -19,10 +20,12 @@ typedef struct lnode{
     List next;
 }List_node;
 
+
 typedef struct auxCidade{
     char cidade[MAXCIDADE];
     char local[MAXCIDADE];
 }Escolhe;
+
 
 typedef struct lno* Viagem;
 typedef struct lno{
@@ -35,11 +38,13 @@ typedef struct lno{
     Viagem next;
 }Viagem_no;
 
+
 typedef struct travel* Travel;
 typedef struct travel{
     char p1[MAXCIDADE];
     Travel next;
 }Travel_no;
+
 
 typedef struct aluno{
     char nome[MAX_NOME];
@@ -62,50 +67,54 @@ typedef struct aluno{
     char pc33[MAXCIDADE];
 }Utilizador;
 
-Travel cria_viagem(Utilizador *atual,Viagem viagem,Travel via);
-Viagem choice(Viagem viagem,Utilizador *atual);
-void print_via(Travel lista);
-List ordemAlfa(List lista);
-void print_viagem(Viagem viagem);
-Viagem gera_viagem(Viagem viagem, char cidade[]);
-int verifica(List lista,char city[]);
-void aumentaPopCidade(long int pos, int num, char cidade[]);
-void retiraPopCidade(Utilizador *atual);
-List leficheiro(List lista);
-List ordena_lista(List lista);
-void print_lista(List lista);
-int lista_vazia(List lista);
+
 void utilizador();
-int confirma(Utilizador *confirma);
-int login(Utilizador *check);
+int registar();
+void inicia(Utilizador *atual);
 void gravaUtilizador(Utilizador *novo);
 int consultaNome(char nome[]);
-int registar();
-int verificaCidade(char cidade[],char pdi[],char aux, char pasta[]);
-void prefer(Utilizador *atual);
-void inicia(Utilizador *atual);
-void alteraNum(char pasta[],long int position, int num);
+int confirma(Utilizador *confirma);
+int login(Utilizador *check);
+int verificaCidade(char cidade[],char pdi[] ,char aux, char pasta[]);
+int checkCity(char cidade[]);
+int verifica(List lista,char city[]);
+List ordemAlfa(List lista);
+List leficheiro(List lista);
+Viagem alfa(Viagem viagem, char cidade[]);
+Viagem gera_viagem(Viagem viagem, char cidade[]);
+void print_viagem(Viagem lista);
+void print_lista(List lista);
+void acabaLocais(char pasta1[],char pastinha[]);
+void alteraNum(char pastinha[],long int position, int num);
+void aumentaPopCidade(long int pos, int num, char cidade[]);
+void retiraPopCidade(Utilizador *atual);
+void retiraPop(Utilizador *atual);
+void guardaPdi(Escolhe * ponto);
 void apagaFichU();
 void guardaUti(Utilizador * atual, Escolhe * paraGuardar);
-void guardaPdi(Escolhe * ponto);
-Viagem choice1(Viagem viagem,Utilizador *atual);
-Viagem choice2(Viagem viagem,Utilizador *atual);
-Travel cria_viagem1(Utilizador *atual,Viagem viagem,Travel via);
-Travel cria_viagem2(Utilizador *atual,Viagem viagem,Travel via);
-void retiraPop(Utilizador *atual);
+void prefer(Utilizador *atual);
 void escolhe_cidade_alfa(List listaPop, Viagem viagem);
-Viagem alfa(Viagem viagem, char cidade[]);
-void escolhe_cidade_alfa(List listaPop, Viagem viagem);
-int main();
-void alteraNumero(char pastinha[],long int pos, int num);
-void aumentaPopularidade(Utilizador *atual);
-void retiraPopularidade(Utilizador *atual);
-void preferCidade(Utilizador *atual);
-void guardaPrefeCidade(Utilizador * atual);
-int checkCity(char cidade[]);
-Viagem choice3(Viagem viagem,Utilizador *atual);
 Travel cria_viagem3(Utilizador *atual,Viagem viagem,Travel via);
-int contaPontos();
+Travel cria_viagem2(Utilizador *atual,Viagem viagem,Travel via);
+Travel cria_viagem1(Utilizador *atual,Viagem viagem,Travel via);
+Travel cria_viagem(Utilizador *atual,Viagem viagem,Travel via);
+Viagem choice3(Viagem viagem,Utilizador *atual);
+Viagem choice2(Viagem viagem,Utilizador *atual);
+Viagem choice1(Viagem viagem,Utilizador *atual);
+Viagem choice(Viagem viagem,Utilizador *atual);
+void escolhe_cidade(List listaPop, Viagem viagem);
+void guardaPrefeCidade(Utilizador * atual);
+void alteraNumero(char pastinha[],long int pos, int num);
+void retiraPopularidade(Utilizador *atual);
+void aumentaPopularidade(Utilizador *atual);
+void preferCidade(Utilizador *atual);
+int totalUtilizadores();
+int localUtilizador(Utilizador * atual);
+int hotPdi(Travel via,char cidade[]);
+int procuraPop(char nome[]);
 int totalPreferencias(Utilizador * atual);
+int contaPontos();
+void print_via(Travel lista);
+
 
 #endif
